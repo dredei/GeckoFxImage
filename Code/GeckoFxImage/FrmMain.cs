@@ -27,7 +27,7 @@ namespace GeckoFxImage
                 Top = 0,
                 AutoSize = false
             };
-            // Маскируемся под Firefox 22
+            // маскируемся под Firefox 22
             GeckoPreferences.User[ "general.useragent.override" ] =
                 "Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20130405 Firefox/22.0";
             var frm = new Form();

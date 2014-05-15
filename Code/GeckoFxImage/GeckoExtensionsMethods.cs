@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Using
+
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using Gecko;
 
-namespace GeckoExample
+#endregion
+
+namespace GeckoFxImage
 {
     public static class GeckoExtensionsMethods
     {
-        private static Image ByteArrayToImage( byte[] byteArrayIn )
-        {
-            MemoryStream ms = new MemoryStream( byteArrayIn );
-            Image returnImage = Image.FromStream( ms );
-            return returnImage;
-        }
-
         public class JsImage
         {
             public int Left { get; set; }
@@ -29,12 +22,38 @@ namespace GeckoExample
             public Image Image { get; set; }
         }
 
+        /// <summary>
+        /// Конвертирует массив байт в изображение
+        /// </summary>
+        /// <param name="byteArrayIn">Массив байт изображения</param>
+        /// <returns></returns>
+        private static Image ByteArrayToImage( byte[] byteArrayIn )
+        {
+            var ms = new MemoryStream( byteArrayIn );
+            var returnImage = Image.FromStream( ms );
+            return returnImage;
+        }
+
+        /// <summary>
+        /// Создает скриншот страницы
+        /// </summary>
+        /// <param name="browser">Ссылка на браузер</param>
+        /// <param name="imageInfo">Ссылка на данные об изображении</param>
+        /// <returns></returns>
         public static Image MakeImage( GeckoWebBrowser browser, JsImage imageInfo )
         {
             var ic = new ImageCreator( browser );
-            return ByteArrayToImage( ic.CanvasGetPngImage( (uint)imageInfo.Left, (uint)imageInfo.Top, (uint)imageInfo.Width, (uint)imageInfo.Height ) );
+            return
+                ByteArrayToImage( ic.CanvasGetPngImage( (uint)imageInfo.Left, (uint)imageInfo.Top, (uint)imageInfo.Width,
+                    (uint)imageInfo.Height ) );
         }
 
+        /// <summary>
+        /// Возвразает информацию о указанном изображении
+        /// </summary>
+        /// <param name="browser">Ссылка на браузер</param>
+        /// <param name="elementId">Id элемента на странице</param>
+        /// <returns></returns>
         public static JsImage GetJsImage( this GeckoWebBrowser browser, string elementId )
         {
             var jsImage = new JsImage();
@@ -56,6 +75,7 @@ namespace GeckoExample
                     }
                     getElementInfo(""" + elementId + @""");";
                 string result;
+                // выполняем простой js, который возвращает массив с нужными для нас данными
                 context.EvaluateScript( js, (nsISupports)browser.Document.DomObject, out result );
                 if ( result == "undefined" )
                 {

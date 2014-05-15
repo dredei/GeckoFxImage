@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Gecko;
-using GeckoExample;
 
 #endregion
 
@@ -62,11 +61,7 @@ namespace GeckoFxImage
         {
             await this.Navigate( "http://www.unitedway-pdx.org/contact-files/captcha/test/captcha_test.php" );
             GeckoExtensionsMethods.JsImage jsImage = this._browser.GetJsImage( "si_image" );
-            if ( jsImage == null )
-            {
-                return null;
-            }
-            return jsImage.Image;
+            return jsImage == null ? null : jsImage.Image;
         }
 
         /// <summary>
@@ -76,12 +71,15 @@ namespace GeckoFxImage
         /// <returns>Возвращает значение, указывающее на корректность ввода</returns>
         public async Task<bool> InputCaptcha( string input )
         {
+            // получаем элемент (input) с указанным id
             var inputEl = this._browser.Document.GetElementById( "code" );
             if ( inputEl == null )
             {
                 return false;
             }
+            // устанавливаем input'у текст, который ввел пользователь
             inputEl.SetAttribute( "value", input );
+            // выбираем первый input, значение (value) которого равно submit
             var btnEl =
                 this._browser.Document.GetElementsByTagName( "input" )
                     .FirstOrDefault( b => b.GetAttribute( "value" ) == "submit" );
@@ -91,9 +89,11 @@ namespace GeckoFxImage
             }
             btnEl.Click();
             await TaskEx.Delay( 2500 );
+            // выбираем первый p, который содержить указанный текст
             var pEl =
                 this._browser.Document.GetElementsByTagName( "p" )
                     .FirstOrDefault( p => p.InnerHtml.Contains( "Test Passed." ) );
+            // если такой элемент получен - тест пройден успешно
             return pEl != null;
         }
     }
